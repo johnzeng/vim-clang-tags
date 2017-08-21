@@ -38,9 +38,12 @@ function! clang_tags#get_USR()
     let path = expand('%:p')
     let offset = clang_tags#get_offset()
     let res = clang_tags#do_cmd('find-def ' . path . ' ' . offset)
+    echom "find def is done;"
     for i in res
+        echom i
         let line = Strip(i)
         if line =~ "^USR: "
+            echom "USR is found"
             return line[5:]
         endif
     endfor
@@ -49,15 +52,24 @@ endfunction
 
 function! clang_tags#grep()
     let def = substitute(clang_tags#get_USR(), "\\$", '\\\$', '')
+    echom 'res is :'.def
 
     if strlen(def) > 0
         let loclist = []
         let res = clang_tags#do_cmd('grep "' . def . '"')
         let cwd = clang_tags#find_root_dir(getcwd())
+        echom "grep is done"
+        let last_item = {'filename': '', 'lnum': '0'}
         for i in res[1:]
+            echom i
             let t = split(i, ':')
             let item = {'filename' : cwd . '/' . t[0], 'lnum' : t[1], 'text' : join(t[2:], ':')}
-            call add(loclist, item)
+            if(item['filename'] == last_item['filename'] && item['lnum'] == last_item['lnum'])
+                continue
+            else
+                call add(loclist, item)
+            endif
+            let last_item = item
         endfor
         call setloclist(0, loclist)
         if len(loclist) > 0
