@@ -29,7 +29,12 @@ endfunction
 function! clang_tags#do_cmd(cmd)
     let oldwd = getcwd()
     exec 'chdir ' . clang_tags#find_root_dir(oldwd)
-    let res = split(system(g:clang_tags#command . ' ' . a:cmd), '\n')
+    if(a:cmd == "update")
+        call system(g:clang_tags#command . ' ' . a:cmd . '&')
+        let res = ""
+    else
+        let res = split(system(g:clang_tags#command . ' ' . a:cmd), '\n')
+    endif
     exec 'chdir ' . oldwd
     return res
 endfunction
@@ -83,6 +88,7 @@ function! clang_tags#grep()
 endfunction
 
 function! clang_tags#update()
+    echom "updated"
     call clang_tags#do_cmd('update')
 endfunction
 
