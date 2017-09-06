@@ -55,7 +55,7 @@ endfunction
 function! clang_tags#grep()
     let def = substitute(clang_tags#get_USR(), "\\$", '\\\$', 'g')
 
-    echom def
+    "echom def
     if strlen(def) > 0
         let loclist = []
         let res = clang_tags#do_cmd('grep "' . def . '"')
@@ -63,7 +63,7 @@ function! clang_tags#grep()
         let last_item = {'filename': '', 'lnum': '0'}
         for i in res[1:]
             let t = split(i, ':')
-            let item = {'filename' : cwd . '/' . t[0], 'lnum' : t[1], 'text' : substitute(i, '^'.t[0].':'.t[1],'','')}
+            let item = {'filename' : t[0], 'lnum' : t[1], 'text' : substitute(i, '^'.t[0].':'.t[1],'','')}
             if(item['filename'] == last_item['filename'] && item['lnum'] == last_item['lnum'])
                 continue
             else
