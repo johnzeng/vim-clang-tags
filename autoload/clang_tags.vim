@@ -58,7 +58,18 @@ function! clang_tags#grep()
     if strlen(def) > 0
         let loclist = []
         let res = clang_tags#do_cmd('grep "' . def . '"')
-        cgete res[1:]
+        let cwd = clang_tags#find_root_dir(getcwd())
+        let last_item = ""
+        for i in res[1:]
+            if(i == last_item)
+                continue
+            else
+                call add(loclist, i)
+                let last_item = i
+            endif
+        endfor
+
+        cgete loclist
         copen
     else
     endif
