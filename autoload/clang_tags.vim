@@ -30,7 +30,8 @@ function! clang_tags#do_cmd(cmd)
     let oldwd = getcwd()
     exec 'chdir ' . clang_tags#find_root_dir(oldwd)
     if(a:cmd == "update")
-        call system(g:clang_tags#command . ' ' . a:cmd . '&')
+        echom 'now update clang tags'
+        call system(g:clang_tags#command . ' ' . a:cmd)
         let res = ""
     else
         let res = split(system(g:clang_tags#command . ' ' . a:cmd), '\n')
@@ -53,6 +54,7 @@ function! clang_tags#get_USR()
 endfunction
 
 function! clang_tags#grep()
+    call clang_tags#update()
     let def = substitute(clang_tags#get_USR(), "\\$", '\\\$', 'g')
 
     if strlen(def) > 0
