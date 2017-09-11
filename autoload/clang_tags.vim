@@ -27,10 +27,13 @@ function! clang_tags#find_root_dir(dir)
 endfunction
 
 function! clang_tags#do_cmd(cmd)
+    if("start" == a:cmd)
+        call system(g:clang_tags#command.' '.a:cmd)
+        return
+    endif
     let oldwd = getcwd()
     exec 'chdir ' . clang_tags#find_root_dir(oldwd)
     if(a:cmd == "update")
-        echom 'now update clang tags'
         call system(g:clang_tags#command . ' ' . a:cmd)
         let res = ""
     else
@@ -41,6 +44,7 @@ function! clang_tags#do_cmd(cmd)
 endfunction
 
 function! clang_tags#get_USR()
+    echom 'now get def'
     let path = expand('%:p')
     let offset = clang_tags#get_offset()
     let res = clang_tags#do_cmd('find-def ' . path . ' ' . offset)
@@ -53,12 +57,19 @@ function! clang_tags#get_USR()
     return ""
 endfunction
 
+if !exists('g:clang_tags_force_update_every_query')
+    let g:clang_tags_force_update_every_query = 1
+endif
+
 function! clang_tags#grep()
-    call clang_tags#update()
+    if(1 == g:clang_tags_force_update_every_query)
+        call clang_tags#update()
+    endif
     let def = substitute(clang_tags#get_USR(), "\\$", '\\\$', 'g')
 
     if strlen(def) > 0
         let loclist = []
+        echom 'now searching references, please wait...'
         let res = clang_tags#do_cmd('grep "' . def . '"')
         let cwd = clang_tags#find_root_dir(getcwd())
         let last_item = ""
@@ -78,6 +89,7 @@ function! clang_tags#grep()
 endfunction
 
 function! clang_tags#update()
+    echom 'now update clang tags, please wait'
     call clang_tags#do_cmd('update')
 endfunction
 
