@@ -47,7 +47,6 @@ function! clang_tags#get_USR_for_grep()
     echom 'now get most specific def'
     let path = expand('%:p')
     let offset = clang_tags#get_offset()
-    echom 'offset is '.offset
     let res = clang_tags#do_cmd('find-def ' . path . ' ' . offset . ' -m')
     
     let retLine = ""
@@ -71,7 +70,6 @@ function! clang_tags#get_USR()
     echom 'now get def'
     let path = expand('%:p')
     let offset = clang_tags#get_offset()
-    echom 'offset is '.offset
     let res = clang_tags#do_cmd('find-def ' . path . ' ' . offset)
     for i in res
         let line = Strip(i)
