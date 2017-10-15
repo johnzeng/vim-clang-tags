@@ -17,8 +17,8 @@ function! clang_tags#find_root_dir(dir)
         else
             let ndir = fnamemodify(ldir, ':h')
             if ndir == ldir
-                echoerr "Root file not found. Are you sure clang-tags server is running?"
-                break
+                call clang_tags#do_cmd("start")
+                return clang_tags#find_root_dir(a:dir)
             endif
             let ldir = ndir
         endif
@@ -88,7 +88,7 @@ fun clang_tags#ListYesOrNo(A,L,P)
     return ['yes', 'no']
 endfunction
 
-function! clang_tags#grep()
+function! clang_tags#grep(overriden_or_not)
     if(1 == g:clang_tags_force_update_every_query)
         call clang_tags#update()
     endif
@@ -99,11 +99,11 @@ function! clang_tags#grep()
 
     let cmd_sufix = " "
     if(isVirtual == "1")
-        let shouldFindOverriden = input('Virtual method, find overridens?[yes/no]','yes' , 'customlist,clang_tags#ListYesOrNo')
-        if "yes" == shouldFindOverriden
+        if "with_overriden" == a:overriden_or_not
             let cmd_sufix = " -o"
         endif
     endif
+
     if strlen(def) > 0
         let loclist = []
         echom 'now searching references, please wait...'

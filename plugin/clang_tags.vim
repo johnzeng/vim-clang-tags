@@ -8,6 +8,7 @@ let g:loaded_clang_tags = 1
 
 "au BufWritePost *.cc,*.cxx,*.hxx,*.c,*.cpp,*.h,*.hpp :call clang_tags#update()
 au VimLeavePre * call clang_tags#do_cmd('stop')
-command! -nargs=0 ClangTagsGrep :call clang_tags#grep()
+command! -nargs=0 ClangTagsGrep :call clang_tags#grep('with_overriden')
+command! -nargs=0 ClangTagsGrepNoVirtual :call clang_tags#grep('no_overriden')
 command! -nargs=0 ClangTagsUpdate :call clang_tags#update()
 "command! -nargs=0 ClangTagsDef :call clang_tags#get_USR()
