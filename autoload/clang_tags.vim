@@ -33,13 +33,14 @@ function! clang_tags#do_cmd(cmd)
     endif
     let oldwd = getcwd()
     exec 'chdir ' . clang_tags#find_root_dir(oldwd)
-    if(a:cmd == "update")
-        call system(g:clang_tags#command . ' ' . a:cmd)
-        let res = ""
-    else
-        let res = split(system(g:clang_tags#command . ' ' . a:cmd), '\n')
-    endif
+    let res = split(system(g:clang_tags#command . ' ' . a:cmd), '\n')
     exec 'chdir ' . oldwd
+    if(1 == len(res) && -1 != match(res[0], 'Connection refused'))
+        call clang_tags#do_cmd('clean')
+        call clang_tags#do_cmd('start')
+        call clang_tags#do_cmd('load')
+        return clang_tags#do_cmd(a:cmd)
+    endif
     return res
 endfunction
 
@@ -128,5 +129,11 @@ endfunction
 function! clang_tags#update()
     echom 'now update clang tags, please wait'
     call clang_tags#do_cmd('update')
+endfunction
+
+function! clang_tags#update()
+    echom 'now create index of clang tags, please wait'
+    call clang_tags#do_cmd('load')
+    call clang_tags#do_cmd('index')
 endfunction
 
