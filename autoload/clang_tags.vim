@@ -27,6 +27,7 @@ function! clang_tags#find_root_dir(dir)
 endfunction
 
 function! clang_tags#do_cmd(cmd)
+    echom "call clang tags cmd:".a:cmd
     if("start" == a:cmd)
         call system(g:clang_tags#command.' '.a:cmd)
         return
@@ -35,7 +36,8 @@ function! clang_tags#do_cmd(cmd)
     exec 'chdir ' . clang_tags#find_root_dir(oldwd)
     let res = split(system(g:clang_tags#command . ' ' . a:cmd), '\n')
     exec 'chdir ' . oldwd
-    if(1 == len(res) && -1 != match(res[0], 'Connection refused'))
+    if('stop' != a:cmd && 1 == len(res) && -1 != match(res[0], 'Connection refused'))
+        echom "old server is not working, will start a new one"
         call clang_tags#do_cmd('clean')
         call clang_tags#do_cmd('start')
         call clang_tags#do_cmd('load')
@@ -131,7 +133,7 @@ function! clang_tags#update()
     call clang_tags#do_cmd('update')
 endfunction
 
-function! clang_tags#update()
+function! clang_tags#index()
     echom 'now create index of clang tags, please wait'
     call clang_tags#do_cmd('load')
     call clang_tags#do_cmd('index')
