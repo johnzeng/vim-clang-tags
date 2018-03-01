@@ -9,33 +9,13 @@ endfunction
 let g:clang_tags#root_file = '.ct.pid'
 let g:clang_tags#command = 'clang-tags'
 
-function! clang_tags#find_root_dir(dir)
-    let ldir = a:dir
-    while 1
-        if filereadable(ldir . '/' . g:clang_tags#root_file)
-            break
-        else
-            let ndir = fnamemodify(ldir, ':h')
-            if ndir == ldir
-                call clang_tags#do_cmd("start")
-                return clang_tags#find_root_dir(a:dir)
-            endif
-            let ldir = ndir
-        endif
-    endwhile
-    return ldir
-endfunction
-
 function! clang_tags#do_cmd(cmd)
     echom "call clang tags cmd:".a:cmd
     if("start" == a:cmd)
         call system(g:clang_tags#command.' '.a:cmd)
         return
     endif
-    let oldwd = getcwd()
-    exec 'chdir ' . clang_tags#find_root_dir(oldwd)
     let res = split(system(g:clang_tags#command . ' ' . a:cmd), '\n')
-    exec 'chdir ' . oldwd
     if('stop' != a:cmd && 1 == len(res) && -1 != match(res[0], 'Connection refused'))
         echom "old server is not working, will start a new one"
         call clang_tags#do_cmd('clean')
@@ -84,7 +64,7 @@ function! clang_tags#get_USR()
 endfunction
 
 if !exists('g:clang_tags_force_update_every_query')
-    let g:clang_tags_force_update_every_query = 1
+    let g:clang_tags_force_update_every_query = 0
 endif
 
 fun clang_tags#ListYesOrNo(A,L,P)
@@ -111,7 +91,6 @@ function! clang_tags#grep(overriden_or_not)
         let loclist = []
         echom 'now searching references, please wait...'
         let res = clang_tags#do_cmd("grep \'" . def . "\' " . cmd_sufix)
-        let cwd = clang_tags#find_root_dir(getcwd())
         let last_item = ""
         for i in res[1:]
             if(i == last_item)
